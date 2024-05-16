@@ -1,25 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { BrowserRouter, Navigate, Route, Routes, } from 'react-router-dom';
+import DefaultLayout from './layout/DefaultLayout';
+import { authRoutes, usePrivateRoutes } from './router/routes';
+import AuthRoutes from './router/AuthRoutes'
+import PrivateRoutes from './router/PrivateRoutes';
 
-function App() {
+const App = () => {
+  const [routes] = usePrivateRoutes()
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path='/'
+          element={<DefaultLayout />}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          {routes.map((route, idx) => {
+            return (
+              route.element && (
+                <Route
+                  key={idx}
+                  path={route.path}
+                  exact={route.exact}
+                  name={route.name}
+                  element={<PrivateRoutes>{route.element}</PrivateRoutes>}
+                />
+              )
+            )
+          })}
+        </Route>
+        <Route
+          path='/'
+        >
+          {authRoutes.map((route, idx) => {
+            return (
+              route.element && (
+                <Route
+                  key={idx}
+                  path={route.path}
+                  exact={route.exact}
+                  name={route.name}
+                  element={<AuthRoutes>{route.element}</AuthRoutes>}
+                />
+              )
+            )
+          })}
+        </Route>
+
+        <Route path='*' element={<PrivateRoutes><Navigate to="/" /></PrivateRoutes>} />
+
+      </Routes>
+    </BrowserRouter >
   );
+
 }
 
-export default App;
+export default App
